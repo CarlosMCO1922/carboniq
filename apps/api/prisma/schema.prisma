@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizations Organization[] @relation("UserOrganizations")
+}
+
+enum OrgType {
+  B2C
+  B2B
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  type      OrgType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  owners    User[]    @relation("UserOrganizations")
+}
+
+enum Region {
+  PT
+  EU
+  UK
+}
+
+model Project {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  region         Region
+  currency       String   @default("EUR")
+  locale         String   @default("pt")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  activities     Activity[]
+  spendMappings  SpendMapping[]
+  expenses       Expense[]
+}
+
+enum Scope {
+  SCOPE1
+  SCOPE2
+  SCOPE3
+}
+
+model EmissionFactor {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  region        Region
+  scope         Scope
+  source        String
+  unit          String
+  co2ePerUnit   Float
+  version       String
+  validFrom     DateTime?
+  validTo       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  activities    Activity[]
+  calculations  Calculation[]
+  spendMappings SpendMapping[]
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  projectId  String
+  type       String
+  amount     Float
+  unit       String
+  location   String?
+  periodFrom DateTime?
+  periodTo   DateTime?
+  metadata   Json?
+  factorId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  project    Project   @relation(fields: [projectId], references: [id])
+  factor     EmissionFactor? @relation(fields: [factorId], references: [id])
+  calculations Calculation[]
+}
+
+model Calculation {
+  id         String   @id @default(cuid())
+  activityId String
+  factorId   String?
+  method     String
+  co2e       Float
+  breakdown  Json?
+  createdAt  DateTime @default(now())
+
+  activity   Activity @relation(fields: [activityId], references: [id])
+  factor     EmissionFactor? @relation(fields: [factorId], references: [id])
+}
+
+// Spend-based groundwork
+model SpendMapping {
+  id          String   @id @default(cuid())
+  projectId   String
+  code        String   // account/category code
+  description String?
+  factorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project   Project         @relation(fields: [projectId], references: [id])
+  factor    EmissionFactor  @relation(fields: [factorId], references: [id])
+  expenses  Expense[]
+
+  @@unique([projectId, code])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  projectId   String
+  date        DateTime
+  amount      Float
+  currency    String   @default("EUR")
+  category    String
+  mappingId   String?
+  createdAt   DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id])
+  mapping   SpendMapping? @relation(fields: [mappingId], references: [id])
+}

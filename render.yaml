@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: carboniq-web
+    env: node
+    rootDir: apps/web
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    plan: starter
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: carboniq-api
+          envVarKey: RENDER_EXTERNAL_URL
+  - type: web
+    name: carboniq-api
+    env: node
+    rootDir: apps/api
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    preDeployCommand: pnpm prisma:migrate:deploy
+    startCommand: pnpm start:prod
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: carboniq-web
+          envVarKey: RENDER_EXTERNAL_URL
+  - type: web
+    name: carboniq-calc
+    env: python
+    rootDir: services/calc
+    buildCommand: pip install poetry && poetry install --no-root
+    startCommand: poetry run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: starter

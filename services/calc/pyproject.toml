@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "calc"
+version = "0.1.0"
+description = "Carboniq calculation service"
+authors = ["Carboniq Team <dev@carboniq>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+uvicorn = {version = "^0.32.0", extras = ["standard"]}
+pydantic = "^2.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

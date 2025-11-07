@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* Modern carboniq palette */
+:root {
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --primary: #10b981; /* emerald-500 */
+  --primary-dark: #059669; /* emerald-600 */
+  --secondary: #06b6d4; /* cyan-500 */
+  --accent: #8b5cf6; /* violet-500 */
+  --muted: #64748b; /* slate-500 */
+  --border: #e2e8f0; /* slate-200 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Lock to light palette for consistent branding (ignore OS dark) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #f8fafc; /* same as light */
+    --foreground: #1e293b;
+    --border: #e2e8f0;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* Custom button utilities */
+.btn-primary {
+  @apply bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+}
+
+.btn-secondary {
+  @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+}
+
+.btn-accent {
+  @apply bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+}
+
+.btn-danger {
+  @apply bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors shadow-sm;
+}
+
+.card {
+  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm;
+}
