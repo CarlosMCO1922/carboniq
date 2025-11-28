@@ -1,57 +1,271 @@
 @import "tailwindcss";
 
-/* Modern carboniq palette */
+/* ============================================
+   CARBONIQ DESIGN SYSTEM
+   ============================================ */
+
+/* Color Palette - Carboniq Brand */
 :root {
+  /* Backgrounds */
   --background: #f8fafc;
+  --background-secondary: #f1f5f9;
   --foreground: #1e293b;
-  --primary: #10b981; /* emerald-500 */
-  --primary-dark: #059669; /* emerald-600 */
-  --secondary: #06b6d4; /* cyan-500 */
-  --accent: #8b5cf6; /* violet-500 */
-  --muted: #64748b; /* slate-500 */
-  --border: #e2e8f0; /* slate-200 */
+  --foreground-secondary: #475569;
+  
+  /* Primary Colors - Emerald (Carbon/Environment) */
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+  --primary-lighter: #a7f3d0;
+  --primary-bg: #ecfdf5;
+  
+  /* Secondary Colors - Cyan (Energy/Technology) */
+  --secondary: #06b6d4;
+  --secondary-dark: #0891b2;
+  --secondary-light: #22d3ee;
+  --secondary-lighter: #a5f3fc;
+  --secondary-bg: #ecfeff;
+  
+  /* Accent Colors - Violet (Innovation) */
+  --accent: #8b5cf6;
+  --accent-dark: #7c3aed;
+  --accent-light: #a78bfa;
+  --accent-lighter: #ddd6fe;
+  --accent-bg: #f5f3ff;
+  
+  /* Scope Colors */
+  --scope1: #ef4444; /* Red - Direct emissions */
+  --scope1-bg: #fef2f2;
+  --scope2: #3b82f6; /* Blue - Indirect energy */
+  --scope2-bg: #eff6ff;
+  --scope3: #22c55e; /* Green - Other indirect */
+  --scope3-bg: #f0fdf4;
+  
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* Neutral Colors */
+  --muted: #64748b;
+  --muted-light: #94a3b8;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Typography */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), 'Courier New', monospace;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-/* Lock to light palette for consistent branding (ignore OS dark) */
+/* Lock to light palette for consistent branding */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #f8fafc; /* same as light */
+    --background: #f8fafc;
     --foreground: #1e293b;
     --border: #e2e8f0;
   }
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom button utilities */
+/* ============================================
+   BUTTON COMPONENTS
+   ============================================ */
+
 .btn-primary {
-  @apply bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+  @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-secondary {
-  @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+  @apply bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-accent {
-  @apply bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm;
+  @apply bg-violet-500 hover:bg-violet-600 active:bg-violet-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-danger {
-  @apply bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium transition-colors shadow-sm;
+  @apply bg-red-500 hover:bg-red-600 active:bg-red-700 text-white px-3 py-1.5 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
+.btn-ghost {
+  @apply bg-transparent hover:bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+/* ============================================
+   CARD COMPONENTS
+   ============================================ */
+
 .card {
-  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm;
+  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.card-compact {
+  @apply bg-white border border-slate-200 rounded-lg p-4 shadow-sm;
+}
+
+.card-interactive {
+  @apply card cursor-pointer hover:border-emerald-300 hover:shadow-lg transition-all duration-200;
+}
+
+/* ============================================
+   BADGE COMPONENTS
+   ============================================ */
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-scope1 {
+  @apply badge bg-red-100 text-red-800 border border-red-200;
+}
+
+.badge-scope2 {
+  @apply badge bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+.badge-scope3 {
+  @apply badge bg-green-100 text-green-800 border border-green-200;
+}
+
+.badge-primary {
+  @apply badge bg-emerald-100 text-emerald-800 border border-emerald-200;
+}
+
+.badge-secondary {
+  @apply badge bg-cyan-100 text-cyan-800 border border-cyan-200;
+}
+
+.badge-muted {
+  @apply badge bg-slate-100 text-slate-800 border border-slate-200;
+}
+
+/* ============================================
+   INPUT COMPONENTS
+   ============================================ */
+
+.input {
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200;
+}
+
+.input-error {
+  @apply input border-red-300 focus:ring-red-500;
+}
+
+.label {
+  @apply block text-sm font-medium text-slate-700 mb-1.5;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-cyan-600 to-violet-600;
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.section {
+  @apply py-8 lg:py-12;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-light);
 }

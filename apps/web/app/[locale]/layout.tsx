@@ -26,9 +26,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Header locale={locale} />
           <CurrencyProvider>
-            <div className="mx-auto max-w-6xl px-4">
-              {children}
-            </div>
+            {children}
           </CurrencyProvider>
         </NextIntlClientProvider>
       </body>

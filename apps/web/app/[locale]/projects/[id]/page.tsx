@@ -4,48 +4,13 @@ import {ProjectActions} from '../../../../components/ProjectActions';
 import {ActivitiesTable} from '../../../../components/ActivitiesTable';
 import {QuickCreate} from '../../../../components/QuickCreate';
 import {SpendMappingsPanel} from '../../../../components/SpendMappingsPanel';
-import {ResultsGraphs} from '../../../../components/ResultsGraphs';
+import {EnhancedResultsGraphs} from '../../../../components/EnhancedResultsGraphs';
+import {EnhancedSummary} from '../../../../components/EnhancedSummary';
 import {ImportQuickPanel} from '../../../../components/ImportQuickPanel';
 import {DeleteProjectButton} from '../../../../components/DeleteProjectButton';
+import {Breadcrumbs} from '../../../../components/Header';
+import {Calendar, Filter} from 'lucide-react';
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-async function Results({projectId, from, to}: {projectId: string; from?: string; to?: string}) {
-  const qs = new URLSearchParams();
-  if (from) qs.set('from', from);
-  if (to) qs.set('to', to);
-  const data = await fetchJSON(`/projects/${projectId}/results${qs.toString() ? `?${qs.toString()}` : ''}`);
-  const scope = data.byScope as Record<string, number>;
-  const byType = data.byType as Record<string, number>;
-  const byMonth = data.byMonth as Record<string, number>;
-  return (
-    <section className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="border rounded p-4">
-        <h3 className="font-medium mb-2">Por Escopo</h3>
-        <table className="w-full text-sm"><tbody>
-          {Object.entries(scope).map(([k,v]) => (
-            <tr key={k} className="border-b"><td className="py-1">{k}</td><td className="text-right">{v.toFixed(2)} kg</td></tr>
-          ))}
-        </tbody></table>
-      </div>
-      <div className="border rounded p-4">
-        <h3 className="font-medium mb-2">Por Tipo</h3>
-        <table className="w-full text-sm"><tbody>
-          {Object.entries(byType).map(([k,v]) => (
-            <tr key={k} className="border-b"><td className="py-1">{k}</td><td className="text-right">{v.toFixed(2)} kg</td></tr>
-          ))}
-        </tbody></table>
-      </div>
-      <div className="md:col-span-2 border rounded p-4">
-        <h3 className="font-medium mb-2">Série Temporal (YYYY-MM)</h3>
-        <table className="w-full text-sm"><tbody>
-          {Object.entries(byMonth).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => (
-            <tr key={k} className="border-b"><td className="py-1">{k}</td><td className="text-right">{v.toFixed(2)} kg</td></tr>
-          ))}
-        </tbody></table>
-      </div>
-    </section>
-  );
-}
 
 async function fetchJSON(path: string, init?: RequestInit) {
   const res = await fetch(`${API}${path}`, {cache: 'no-store', ...init});
@@ -53,21 +18,9 @@ async function fetchJSON(path: string, init?: RequestInit) {
   return res.json();
 }
 
-async function Summary({projectId, from, to}: {projectId: string; from?: string; to?: string}) {
-  const qs = new URLSearchParams();
-  if (from) qs.set('from', from);
-  if (to) qs.set('to', to);
-  const data = await fetchJSON(`/projects/${projectId}/summary${qs.toString() ? `?${qs.toString()}` : ''}`);
-  const s = data.totals.byScope as {SCOPE1: number; SCOPE2: number; SCOPE3: number};
-  const total = data.totals.co2e as number;
-  return (
-    <div className="grid grid-cols-4 gap-4">
-      <div className="p-4 border rounded"><div className="text-sm text-gray-500">Total CO2e</div><div className="text-2xl font-semibold">{total.toFixed(2)} kg</div></div>
-      <div className="p-4 border rounded"><div className="text-sm text-gray-500">Escopo 1</div><div className="text-xl">{s.SCOPE1.toFixed(2)} kg</div></div>
-      <div className="p-4 border rounded"><div className="text-sm text-gray-500">Escopo 2</div><div className="text-xl">{s.SCOPE2.toFixed(2)} kg</div></div>
-      <div className="p-4 border rounded"><div className="text-sm text-gray-500">Escopo 3</div><div className="text-xl">{s.SCOPE3.toFixed(2)} kg</div></div>
-    </div>
-  );
+async function ProjectInfo({projectId}: {projectId: string}) {
+  const project = await fetchJSON(`/projects/${projectId}`);
+  return project;
 }
 
 async function Activities({projectId}: {projectId: string}) {
@@ -126,54 +79,118 @@ export default async function ProjectPage({params, searchParams}: {params: Promi
   const sp = await searchParams;
   const from = sp?.from;
   const to = sp?.to;
+  
+  const project = await fetchJSON(`/projects/${id}`);
+  
   return (
-    <main className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Projeto</h1>
-        <div className="flex items-center gap-2 text-sm">
-          <form action="" method="get" className="flex items-end gap-2">
-            <div>
-              <label className="block text-xs">De</label>
-              <input className="border px-2 py-1 rounded" type="date" name="from" defaultValue={from} />
+    <main className="min-h-screen bg-slate-50">
+      <div className="container py-8 space-y-8">
+        {/* Header Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <Breadcrumbs 
+              items={[
+                { label: 'Projetos', href: `/${locale}/projects` },
+                { label: project.name || 'Projeto' }
+              ]} 
+            />
+            <h1 className="text-3xl font-bold text-slate-900 mt-2">{project.name || 'Projeto'}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
+              <span className="badge-muted">{project.region}</span>
+              <span className="badge-muted">{project.currency}</span>
             </div>
-            <div>
-              <label className="block text-xs">Até</label>
-              <input className="border px-2 py-1 rounded" type="date" name="to" defaultValue={to} />
+          </div>
+          <div className="flex items-center gap-3">
+            <Link className="btn-secondary" href={`/${locale}/onboarding`}>
+              Novo projeto
+            </Link>
+            {/* @ts-expect-error Client Component */}
+            <DeleteProjectButton projectId={id} />
+          </div>
+        </div>
+
+        {/* Date Filter */}
+        <div className="card-compact">
+          <form action="" method="get" className="flex items-end gap-4">
+            <div className="flex-1">
+              <label className="label flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Período
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <input 
+                    className="input" 
+                    type="date" 
+                    name="from" 
+                    defaultValue={from}
+                    placeholder="Data inicial"
+                  />
+                </div>
+                <span className="text-slate-400">até</span>
+                <div className="flex-1">
+                  <input 
+                    className="input" 
+                    type="date" 
+                    name="to" 
+                    defaultValue={to}
+                    placeholder="Data final"
+                  />
+                </div>
+                <button className="btn-primary flex items-center gap-2" formMethod="get">
+                  <Filter className="w-4 h-4" />
+                  Filtrar
+                </button>
+              </div>
             </div>
-            <button className="px-3 py-1 border rounded" formMethod="get">Filtrar</button>
           </form>
-          <Link className="btn-secondary" href={`/${locale}/onboarding`}>Novo projeto</Link>
+        </div>
+
+        {/* Summary Metrics */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Resumo de Emissões</h2>
           {/* @ts-expect-error Client Component */}
-          <DeleteProjectButton projectId={id} />
+          <EnhancedSummary projectId={id} from={from} to={to} />
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Ações Rápidas</h2>
+          {/* @ts-expect-error Client Component */}
+          <QuickCreate projectId={id} />
+          <div className="flex items-center gap-3 mt-4 text-sm">
+            <Link className="text-emerald-600 hover:text-emerald-700 font-medium" href={`/${locale}/projects/${id}/activities/new`}>
+              ➕ Nova atividade
+            </Link>
+            <span className="text-slate-300">•</span>
+            <Link className="text-emerald-600 hover:text-emerald-700 font-medium" href={`/${locale}/projects/${id}/spend/import`}>
+              📥 Importar CSV (Spend)
+            </Link>
+          </div>
+        </div>
+
+        {/* Activities Table */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Atividades</h2>
+          {/* @ts-expect-error Client Component */}
+          <ActivitiesTable projectId={id} />
+        </div>
+
+        {/* Visualizations */}
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Análise e Visualizações</h2>
+          {/* @ts-expect-error Client Component */}
+          <EnhancedResultsGraphs projectId={id} from={from} to={to} />
+        </div>
+
+        {/* Additional Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* @ts-expect-error Client Component */}
+          <ProjectActions projectId={id} />
+          {/* @ts-expect-error Client Component */}
+          <SpendMappingsPanel projectId={id} />
         </div>
       </div>
-      <Suspense fallback={<div>Carregar sumário…</div>}>
-        {/* @ts-expect-error Async Server Component */}
-        <Summary projectId={id} from={from} to={to} />
-      </Suspense>
-      {/* Criação rápida de atividades */}
-      {/* @ts-expect-error Client Component */}
-      <QuickCreate projectId={id} />
-      <div className="flex items-center gap-3 text-sm text-gray-700">
-        <a className="underline" href={`/${locale}/projects/${id}/activities/new`}>Nova atividade</a>
-        <a className="underline" href={`/${locale}/projects/${id}/spend/import`}>Importar e calcular (Spend)</a>
-      </div>
-      {/* Inline import quick panel can be added later if preferes */}
-      {/* Tabela de atividades e ações (Client) */}
-      {/* @ts-expect-error Client Component */}
-      <ActivitiesTable projectId={id} />
-      {/* Results aggregate */}
-      {/* @ts-expect-error Async Server Component */}
-      <Results projectId={id} from={from} to={to} />
-      {/* Graphs (Client) */}
-      {/* @ts-expect-error Client Component */}
-      <ResultsGraphs projectId={id} from={from} to={to} />
-      {/* Client actions */}
-      {/* @ts-expect-error Client Component */}
-      <ProjectActions projectId={id} />
-      {/* Spend mappings inline */}
-      {/* @ts-expect-error Client Component */}
-      <SpendMappingsPanel projectId={id} />
     </main>
   );
 }
